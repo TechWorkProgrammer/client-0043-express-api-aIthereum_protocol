@@ -5,7 +5,6 @@ import {fal} from "@fal-ai/client";
 import WebSocket from "@/config/WebSocket";
 import Service from "@/service/Service";
 import Variables from "@/config/Variables";
-import {createCanvas} from "canvas";
 import gl from "gl";
 import {URL} from "url";
 import {
@@ -16,6 +15,7 @@ import {
     DirectionalLight,
     SRGBColorSpace,
 } from "three";
+import {PNG} from "pngjs";
 import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader.js";
 
 
@@ -56,18 +56,13 @@ class MeshRodinWorker {
         this.taskId = taskId;
     }
 
-    private async generateThumbnailFromGlb(
-        glbPath: string,
-        outputPath: string
-    ): Promise<void> {
+    private async generateThumbnailFromGlb(glbPath: string, outputPath: string): Promise<void> {
         const width = 512;
         const height = 512;
 
-        const canvas = createCanvas(width, height);
         const context = gl(width, height, {preserveDrawingBuffer: true});
 
         const renderer = new WebGLRenderer({
-            canvas: canvas as any,
             context: context as any,
             antialias: true,
         });
@@ -86,23 +81,30 @@ class MeshRodinWorker {
 
         const loader = new GLTFLoader();
         const fileBuffer = fs.readFileSync(new URL(glbPath).pathname);
-        const gltf = await loader.parseAsync(
-            fileBuffer.buffer,
-            path.dirname(glbPath) + "/"
-        );
+        const gltf = await loader.parseAsync(fileBuffer.buffer, path.dirname(glbPath) + "/");
         scene.add(gltf.scene);
 
         renderer.render(scene, camera);
 
-        const outStream = fs.createWriteStream(outputPath);
-        const pngStream = (canvas as any).createPNGStream();
+        const pixels = new Uint8Array(width * height * 4);
+        context.readPixels(0, 0, width, height, context.RGBA, context.UNSIGNED_BYTE, pixels);
+
+        const flipped = new Uint8Array(pixels.length);
+        for (let row = 0; row < height; row++) {
+            const srcStart = row * width * 4;
+            const dstStart = (height - row - 1) * width * 4;
+            flipped.set(pixels.subarray(srcStart, srcStart + width * 4), dstStart);
+        }
+
+        const png = new PNG({width, height});
+        png.data = Buffer.from(flipped);
+
         await new Promise<void>((resolve, reject) => {
-            pngStream.pipe(outStream);
-            outStream.on("finish", () => resolve());
-            outStream.on("error", reject);
+            png.pack().pipe(fs.createWriteStream(outputPath))
+                .on("finish", resolve)
+                .on("error", reject);
         });
     }
-
 
     private async processTask(): Promise<void> {
         WebSocket.sendMessage(this.taskId, "processing", "Worker started processing Rodin model.");

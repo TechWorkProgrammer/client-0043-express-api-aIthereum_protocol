@@ -41,7 +41,6 @@ class Route {
       } else if (typeof handler === "function") {
         const wrappedHandler = this.asyncErrorCatcher(handler);
         if (path) {
-          console.log("REGISTERING ROUTE:", path);
           return originalUse(path, wrappedHandler);
         }
         return originalUse(wrappedHandler);
