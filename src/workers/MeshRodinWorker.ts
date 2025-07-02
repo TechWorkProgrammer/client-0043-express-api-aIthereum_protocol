@@ -61,8 +61,20 @@ class MeshRodinWorker {
         const height = 512;
 
         const context = gl(width, height, {preserveDrawingBuffer: true});
+        if (!context) throw new Error("Failed to create headless GL context.");
+
+        const fakeCanvas = {
+            width, height,
+            style: {},
+            addEventListener: () => {
+            },
+            removeEventListener: () => {
+            },
+            getContext: (_: string) => context,
+        } as unknown as HTMLCanvasElement;
 
         const renderer = new WebGLRenderer({
+            canvas: fakeCanvas as any,
             context: context as any,
             antialias: true,
         });
@@ -81,13 +93,23 @@ class MeshRodinWorker {
 
         const loader = new GLTFLoader();
         const fileBuffer = fs.readFileSync(new URL(glbPath).pathname);
-        const gltf = await loader.parseAsync(fileBuffer.buffer, path.dirname(glbPath) + "/");
+        const gltf = await loader.parseAsync(
+            fileBuffer.buffer,
+            path.dirname(glbPath) + "/"
+        );
         scene.add(gltf.scene);
-
         renderer.render(scene, camera);
 
         const pixels = new Uint8Array(width * height * 4);
-        context.readPixels(0, 0, width, height, context.RGBA, context.UNSIGNED_BYTE, pixels);
+        context.readPixels(
+            0,
+            0,
+            width,
+            height,
+            context.RGBA,
+            context.UNSIGNED_BYTE,
+            pixels
+        );
 
         const flipped = new Uint8Array(pixels.length);
         for (let row = 0; row < height; row++) {
@@ -100,7 +122,8 @@ class MeshRodinWorker {
         png.data = Buffer.from(flipped);
 
         await new Promise<void>((resolve, reject) => {
-            png.pack().pipe(fs.createWriteStream(outputPath))
+            png.pack()
+                .pipe(fs.createWriteStream(outputPath))
                 .on("finish", resolve)
                 .on("error", reject);
         });
@@ -121,7 +144,6 @@ class MeshRodinWorker {
                 const result = await fal.queue.result("fal-ai/hyper3d/rodin", {
                     requestId: this.taskId
                 });
-                console.log(result);
                 WebSocket.sendMessage(this.taskId, "downloading", "Downloading Rodin model files...");
 
                 const glbUrl = result.data.model_mesh.url;
