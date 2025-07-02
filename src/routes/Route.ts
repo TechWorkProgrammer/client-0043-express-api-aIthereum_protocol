@@ -26,7 +26,7 @@ class Route {
     app.use("/code", CodeApiRoute.route());
 
     app.use("/assets", express.static(join(process.cwd(), Variables.ASSETS_PATH)));
-    app.use("/*", (req: Request, res: EResponse) => {
+    app.use("*", (req: Request, res: EResponse) => {
       Response.NotFound(res);
     });
   }
@@ -41,6 +41,7 @@ class Route {
       } else if (typeof handler === "function") {
         const wrappedHandler = this.asyncErrorCatcher(handler);
         if (path) {
+          console.log("REGISTERING ROUTE:", path);
           return originalUse(path, wrappedHandler);
         }
         return originalUse(wrappedHandler);
