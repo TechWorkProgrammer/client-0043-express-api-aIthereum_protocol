@@ -34,7 +34,7 @@ make_light("KeyLight",  (4, 4, 4), 1000)
 make_light("FillLight", (-4,-4, 2),  300)
 
 scene = bpy.context.scene
-scene.render.engine        = 'BLENDER_EEVEE'
+scene.render.engine        = 'BLENDER_EEVEE_NEXT'
 scene.render.film_transparent = True
 scene.render.resolution_x  = 512
 scene.render.resolution_y  = 512
