@@ -50,10 +50,12 @@ class MeshRodinWorker {
         localGlbPath: string,
         localOutPath: string
     ): Promise<void> {
-        const scriptPath = path.resolve(process.cwd(), "render_thumb.py");
+        const projectRoot = path.resolve(__dirname, "../../../");
 
-        const absGlb = path.resolve(process.cwd(), localGlbPath);
-        const absOut = path.resolve(process.cwd(), localOutPath);
+        const scriptPath = path.join(projectRoot, "render_thumb.py");
+
+        const absGlb = path.join(projectRoot, localGlbPath);
+        const absOut = path.join(projectRoot, localOutPath);
 
         if (!fs.existsSync(absGlb)) {
             throw new Error(`GLB file not found at ${absGlb}`);
@@ -73,6 +75,7 @@ class MeshRodinWorker {
                     absOut
                 ],
                 {
+                    cwd: projectRoot,
                     stdio: ["ignore", "pipe", "pipe"]
                 }
             );
@@ -81,11 +84,8 @@ class MeshRodinWorker {
             blender.stderr.on("data", d => console.error(d.toString()));
 
             blender.on("exit", code => {
-                if (code === 0 && fs.existsSync(absOut)) {
-                    resolve();
-                } else {
-                    reject(new Error(`Blender exited with code ${code}`));
-                }
+                if (code === 0 && fs.existsSync(absOut)) resolve();
+                else reject(new Error(`Blender exited with code ${code}`));
             });
         });
     }
