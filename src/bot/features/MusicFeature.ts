@@ -24,7 +24,7 @@ class MusicFeature extends Service {
     }
 
     public static async showMusicMenu(bot: TelegramBot, chatId: number): Promise<void> {
-        const message = `<b>Music Content Menu</b>\n\nChoose an action below:`;
+        /*const message = `<b>Music Content Menu</b>\n\nChoose an action below:`;
         const menuOptions: TelegramBot.SendMessageOptions = {
             parse_mode: "HTML",
             reply_markup: {
@@ -35,7 +35,12 @@ class MusicFeature extends Service {
                 ]
             }
         };
-        await bot.sendMessage(chatId, message, menuOptions);
+        await bot.sendMessage(chatId, message, menuOptions);*/
+        await bot.sendMessage(
+            chatId,
+            `Music are not available, stay tuned`,
+            {parse_mode: "HTML"}
+        );
     }
 
     public static async handleCallbackQuery(bot: TelegramBot, callbackQuery: TelegramBot.CallbackQuery): Promise<void> {
