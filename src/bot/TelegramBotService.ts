@@ -22,7 +22,7 @@ class TelegramBotService {
     }
 
     private static showMainMenu(chatId: number): void {
-        const message = `👋 <b>Welcome to Althereum Protocol Bot!</b>\n\nSelect an option below to get started.`;
+        const message = `<b>Welcome to Althereum Protocol Bot!</b>\n\nSelect an option below to get started.`;
         const menuOptions: TelegramBot.SendMessageOptions = {
             parse_mode: "HTML",
             reply_markup: {

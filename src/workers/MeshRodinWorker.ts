@@ -170,7 +170,7 @@ class MeshRodinWorker {
                         finalImageUrl = `${Variables.BASE_URL}/assets/images/${this.taskId}_thumb.png`;
                         WebSocket.sendMessage(this.taskId, "generating_thumbnail_done", "Thumbnail generated successfully.");
                     } catch (thumbError: any) {
-                        console.error(`Failed to generate thumbnail for ${this.taskId}:`, thumbError);
+                        console.error(`Failed to generate thumbnail for ${this.taskId}:`, thumbError.message);
                         WebSocket.sendMessage(this.taskId, "generating_thumbnail_failed", "Failed to generate thumbnail.");
                         finalImageUrl = `https://veloxiai.app/icon.png`;
                     }
