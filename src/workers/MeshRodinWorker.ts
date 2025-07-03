@@ -46,30 +46,33 @@ class MeshRodinWorker {
         this.taskId = taskId;
     }
 
-    private async generateThumbnailFromGlb(glbPath: string, outputPath: string): Promise<void> {
-        return new Promise((resolve, reject) => {
-            const blenderScript = path.resolve(process.cwd(), "render_thumb.py");
+    private async generateThumbnailFromGlb(localGlbPath: string, localOutPath: string): Promise<void> {
+        const scriptPath = path.resolve(process.cwd(), "render_thumb.py");
+        const absGlb = path.resolve(process.cwd(), localGlbPath);
+        const absOut = path.resolve(process.cwd(), localOutPath);
 
+        if (!fs.existsSync(absGlb)) {
+            throw new Error(`GLB file not found at ${absGlb}`);
+        }
+
+        return new Promise((resolve, reject) => {
             const blender = spawn("blender", [
                 "--background",
-                "--python", blenderScript,
+                "--python", scriptPath,
                 "--",
-                glbPath,
-                outputPath
+                absGlb,
+                absOut
             ], {
                 cwd: process.cwd(),
                 stdio: ["ignore", "pipe", "pipe"]
             });
 
-            blender.stdout.on("data", data => console.log(data.toString()));
-            blender.stderr.on("data", data => console.error(data.toString()));
+            blender.stdout.on("data", d => console.log(d.toString()));
+            blender.stderr.on("data", d => console.error(d.toString()));
 
             blender.on("exit", code => {
-                if (code === 0 && fs.existsSync(outputPath)) {
-                    resolve();
-                } else {
-                    reject(new Error(`Blender exited with code ${code}`));
-                }
+                if (code === 0 && fs.existsSync(absOut)) resolve();
+                else reject(new Error(`Blender exited with code ${code}`));
             });
         });
     }
@@ -111,7 +114,7 @@ class MeshRodinWorker {
                     const thumbnailLocalPath = `storage/assets/images/${this.taskId}_thumb.png`;
 
                     try {
-                        await this.generateThumbnailFromGlb(glbModelUrlPath, thumbnailLocalPath);
+                        await this.generateThumbnailFromGlb(glbPath, thumbnailLocalPath);
                         finalImageUrl = `${Variables.BASE_URL}/assets/images/${this.taskId}_thumb.png`;
                         WebSocket.sendMessage(this.taskId, "generating_thumbnail_done", "Thumbnail generated successfully.");
                     } catch (thumbError: any) {
