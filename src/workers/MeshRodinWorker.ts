@@ -50,7 +50,8 @@ class MeshRodinWorker {
         localGlbPath: string,
         localOutPath: string
     ): Promise<void> {
-        const scriptPath = path.join(process.cwd(), "render_thumb.py");
+        const scriptPath = path.resolve(process.cwd(), "render_thumb.py");
+
         const absGlb = path.resolve(process.cwd(), localGlbPath);
         const absOut = path.resolve(process.cwd(), localOutPath);
 
@@ -72,13 +73,12 @@ class MeshRodinWorker {
                     absOut
                 ],
                 {
-                    cwd: process.cwd(),
                     stdio: ["ignore", "pipe", "pipe"]
                 }
             );
 
-            blender.stdout.on("data", data => console.log(data.toString()));
-            blender.stderr.on("data", data => console.error(data.toString()));
+            blender.stdout.on("data", d => console.log(d.toString()));
+            blender.stderr.on("data", d => console.error(d.toString()));
 
             blender.on("exit", code => {
                 if (code === 0 && fs.existsSync(absOut)) {

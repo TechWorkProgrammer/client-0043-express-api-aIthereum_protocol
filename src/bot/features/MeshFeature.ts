@@ -114,11 +114,11 @@ class MeshFeature extends Service {
                             inline_keyboard: [
                                 [{text: "3D", callback_data: "menu_3d"}],
                                 [{text: "Music", callback_data: "menu_music"}],
-                                [{text: "Project", url: "https://ap.techwork.store/program"}],
+                                [{text: "Project", url: "https://app.aithereum.org/program"}],
                                 [{text: "NFT", callback_data: "menu_nft"}],
                                 [{text: "Metaverse", callback_data: "menu_metaverse"}],
                                 [{text: "Game", callback_data: "menu_game"}],
-                                [{text: "Visit Our Website", url: "https://ap.techwork.store"}]
+                                [{text: "Visit Our Website", url: "https://app.aithereum.org"}]
                             ]
                         }
                     }
@@ -313,7 +313,7 @@ class MeshFeature extends Service {
                 [
                     {
                         text: "View on Web",
-                        url: `https://ap.techwork.store/3d/${webTaskId}`
+                        url: `https://app.aithereum.org/3d/${webTaskId}`
                     },
                     {text: "↩️ Back to 3D Menu", callback_data: "back_mesh_menu"}
                 ]
