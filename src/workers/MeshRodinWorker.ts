@@ -50,15 +50,12 @@ class MeshRodinWorker {
         localGlbPath: string,
         localOutPath: string
     ): Promise<void> {
-        const projectRoot = path.resolve(__dirname, "../../../");
-        const localRoot = path.resolve(__dirname, "../../");
-
-        const scriptPath = path.join(localRoot, "render_thumb.py");
-        const absGlb = path.join(localRoot, localGlbPath);
-        const absOut = path.join(localRoot, localOutPath);
+        const projectRoot = process.cwd();
+        const scriptPath = path.join(projectRoot, "render_thumb.py");
+        const absGlb = path.join(projectRoot, localGlbPath);
+        const absOut = path.join(projectRoot, localOutPath);
 
         console.log("projectRoot:", projectRoot);
-        console.log("localRoot  :", localRoot);
         console.log("scriptPath :", scriptPath);
         console.log("absGlb     :", absGlb);
         console.log("absOut     :", absOut);
@@ -95,7 +92,6 @@ class MeshRodinWorker {
             });
         });
     }
-
 
     private async processTask(): Promise<void> {
         WebSocket.sendMessage(this.taskId, "processing", "Worker started processing Rodin model.");
