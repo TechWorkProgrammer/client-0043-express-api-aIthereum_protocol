@@ -51,10 +51,11 @@ class MeshRodinWorker {
         localOutPath: string
     ): Promise<void> {
         const projectRoot = path.resolve(__dirname, "../../../");
+        const localRoot = path.resolve(__dirname, "../../");
 
         const scriptPath = path.join(projectRoot, "render_thumb.py");
-        const absGlb = path.join(projectRoot, localGlbPath);
-        const absOut = path.join(projectRoot, localOutPath);
+        const absGlb = path.join(localRoot, localGlbPath);
+        const absOut = path.join(localRoot, localOutPath);
 
         if (!fs.existsSync(absGlb)) {
             throw new Error(`GLB file not found at ${absGlb}`);
