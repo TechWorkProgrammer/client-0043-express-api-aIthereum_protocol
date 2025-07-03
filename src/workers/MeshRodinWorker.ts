@@ -50,7 +50,7 @@ class MeshRodinWorker {
         localGlbPath: string,
         localOutPath: string
     ): Promise<void> {
-        const scriptPath = path.resolve(__dirname, "../../render_thumb.py");
+        const scriptPath = path.join(process.cwd(), "render_thumb.py");
         const absGlb = path.resolve(process.cwd(), localGlbPath);
         const absOut = path.resolve(process.cwd(), localOutPath);
 
