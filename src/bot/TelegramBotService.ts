@@ -28,11 +28,11 @@ class TelegramBotService {
             reply_markup: {
                 inline_keyboard: [
                     [{text: "3D", callback_data: "menu_3d"}],
-                    [{text: "Music", callback_data: "menu_music"}],
+                    /*[{text: "Music", callback_data: "menu_music"}],
                     [{text: "Project", url: "https://ap.techwork.store/program"}],
                     [{text: "NFT", callback_data: "menu_nft"}],
                     [{text: "Metaverse", callback_data: "menu_metaverse"}],
-                    [{text: "Game", callback_data: "menu_game"}],
+                    [{text: "Game", callback_data: "menu_game"}],*/
                     [{text: "Visit Our Website", url: "https://ap.techwork.store.app"}]
                 ]
             }

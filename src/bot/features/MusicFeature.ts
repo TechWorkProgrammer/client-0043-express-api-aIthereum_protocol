@@ -76,7 +76,12 @@ class MusicFeature extends Service {
     }
 
     private static async generateMusic(bot: TelegramBot, chatId: number, telegramId: string, prompt: string): Promise<void> {
-        const telegramUser = await this.prisma.telegramUser.upsert({
+        await bot.sendMessage(
+            chatId,
+            `Music are not available, stay tuned`,
+            {parse_mode: "HTML"}
+        );
+        /*const telegramUser = await this.prisma.telegramUser.upsert({
             where: {telegramId},
             update: {},
             create: {
@@ -104,7 +109,7 @@ class MusicFeature extends Service {
         } catch (error: any) {
             console.error("Error generating music:", error.message);
             await bot.sendMessage(chatId, "<b>Failed to generate music. Please try again later.</b>", {parse_mode: "HTML"});
-        }
+        }*/
     }
 
     public static async displayMusicAssets(bot: TelegramBot, chatId: number, telegramId: string, page: number): Promise<void> {
