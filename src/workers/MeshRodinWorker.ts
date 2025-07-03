@@ -7,7 +7,7 @@ import Service from "@/service/Service";
 import Variables from "@/config/Variables";
 import {URL} from "url";
 import {spawn} from "child_process";
-
+import {posix} from "path";
 
 const MAX_TIME = 10 * 60 * 1000;
 const POLL_INTERVAL = 5000;
@@ -128,7 +128,8 @@ class MeshRodinWorker {
 
                     try {
                         await this.generateThumbnailFromGlb(glbPath, thumbnailLocalPath);
-                        finalImageUrl = `${Variables.BASE_URL}/assets/images/${this.taskId}_thumb.png`;
+                        const rel = posix.join("assets", "images", `${this.taskId}_thumb.png`);
+                        finalImageUrl = new URL(rel, Variables.BASE_URL).href;
                         WebSocket.sendMessage(this.taskId, "generating_thumbnail_done", "Thumbnail generated successfully.");
                     } catch (thumbError: any) {
                         console.error(`Failed to generate thumbnail for ${this.taskId}:`, thumbError.message);
