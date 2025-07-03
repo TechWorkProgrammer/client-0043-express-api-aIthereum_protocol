@@ -46,7 +46,10 @@ class MeshRodinWorker {
         this.taskId = taskId;
     }
 
-    private async generateThumbnailFromGlb(localGlbPath: string, localOutPath: string): Promise<void> {
+    private async generateThumbnailFromGlb(
+        localGlbPath: string,
+        localOutPath: string
+    ): Promise<void> {
         const scriptPath = path.resolve(process.cwd(), "render_thumb.py");
         const absGlb = path.resolve(process.cwd(), localGlbPath);
         const absOut = path.resolve(process.cwd(), localOutPath);
@@ -56,23 +59,33 @@ class MeshRodinWorker {
         }
 
         return new Promise((resolve, reject) => {
-            const blender = spawn("blender", [
-                "--background",
-                "--python", scriptPath,
-                "--",
-                absGlb,
-                absOut
-            ], {
-                cwd: process.cwd(),
-                stdio: ["ignore", "pipe", "pipe"]
-            });
+            const blender = spawn(
+                "xvfb-run",
+                [
+                    "-a",
+                    "-s", "-screen 0 512x512x24",
+                    "blender",
+                    "--background",
+                    "--python", scriptPath,
+                    "--",
+                    absGlb,
+                    absOut
+                ],
+                {
+                    cwd: process.cwd(),
+                    stdio: ["ignore", "pipe", "pipe"]
+                }
+            );
 
-            blender.stdout.on("data", d => console.log(d.toString()));
-            blender.stderr.on("data", d => console.error(d.toString()));
+            blender.stdout.on("data", data => console.log(data.toString()));
+            blender.stderr.on("data", data => console.error(data.toString()));
 
             blender.on("exit", code => {
-                if (code === 0 && fs.existsSync(absOut)) resolve();
-                else reject(new Error(`Blender exited with code ${code}`));
+                if (code === 0 && fs.existsSync(absOut)) {
+                    resolve();
+                } else {
+                    reject(new Error(`Blender exited with code ${code}`));
+                }
             });
         });
     }
