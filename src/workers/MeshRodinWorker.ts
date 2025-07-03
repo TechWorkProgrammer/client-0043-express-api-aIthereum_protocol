@@ -5,18 +5,8 @@ import {fal} from "@fal-ai/client";
 import WebSocket from "@/config/WebSocket";
 import Service from "@/service/Service";
 import Variables from "@/config/Variables";
-import gl from "gl";
 import {URL} from "url";
-import {
-    WebGLRenderer,
-    Scene,
-    PerspectiveCamera,
-    AmbientLight,
-    DirectionalLight,
-    SRGBColorSpace,
-} from "three";
-import {PNG} from "pngjs";
-import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader.js";
+import {spawn} from "child_process";
 
 
 const MAX_TIME = 10 * 60 * 1000;
@@ -57,75 +47,30 @@ class MeshRodinWorker {
     }
 
     private async generateThumbnailFromGlb(glbPath: string, outputPath: string): Promise<void> {
-        const width = 512;
-        const height = 512;
+        return new Promise((resolve, reject) => {
+            const blenderScript = path.resolve(process.cwd(), "render_thumb.py");
 
-        const context = gl(width, height, {preserveDrawingBuffer: true});
-        if (!context) throw new Error("Failed to create headless GL context.");
+            const blender = spawn("blender", [
+                "--background",
+                "--python", blenderScript,
+                "--",
+                glbPath,
+                outputPath
+            ], {
+                cwd: process.cwd(),
+                stdio: ["ignore", "pipe", "pipe"]
+            });
 
-        const fakeCanvas = {
-            width, height,
-            style: {},
-            addEventListener: () => {
-            },
-            removeEventListener: () => {
-            },
-            getContext: (_: string) => context,
-        } as unknown as HTMLCanvasElement;
+            blender.stdout.on("data", data => console.log(data.toString()));
+            blender.stderr.on("data", data => console.error(data.toString()));
 
-        const renderer = new WebGLRenderer({
-            canvas: fakeCanvas as any,
-            context: context as any,
-            antialias: true,
-        });
-        renderer.setSize(width, height);
-        renderer.outputColorSpace = SRGBColorSpace;
-
-        const scene = new Scene();
-        const camera = new PerspectiveCamera(45, width / height, 0.1, 100);
-        camera.position.set(2, 2, 2);
-        camera.lookAt(0, 0, 0);
-
-        scene.add(new AmbientLight(0xffffff, 0.6));
-        const dirLight = new DirectionalLight(0xffffff, 0.8);
-        dirLight.position.set(5, 10, 7.5);
-        scene.add(dirLight);
-
-        const loader = new GLTFLoader();
-        const fileBuffer = fs.readFileSync(new URL(glbPath).pathname);
-        const gltf = await loader.parseAsync(
-            fileBuffer.buffer,
-            path.dirname(glbPath) + "/"
-        );
-        scene.add(gltf.scene);
-        renderer.render(scene, camera);
-
-        const pixels = new Uint8Array(width * height * 4);
-        context.readPixels(
-            0,
-            0,
-            width,
-            height,
-            context.RGBA,
-            context.UNSIGNED_BYTE,
-            pixels
-        );
-
-        const flipped = new Uint8Array(pixels.length);
-        for (let row = 0; row < height; row++) {
-            const srcStart = row * width * 4;
-            const dstStart = (height - row - 1) * width * 4;
-            flipped.set(pixels.subarray(srcStart, srcStart + width * 4), dstStart);
-        }
-
-        const png = new PNG({width, height});
-        png.data = Buffer.from(flipped);
-
-        await new Promise<void>((resolve, reject) => {
-            png.pack()
-                .pipe(fs.createWriteStream(outputPath))
-                .on("finish", resolve)
-                .on("error", reject);
+            blender.on("exit", code => {
+                if (code === 0 && fs.existsSync(outputPath)) {
+                    resolve();
+                } else {
+                    reject(new Error(`Blender exited with code ${code}`));
+                }
+            });
         });
     }
 
