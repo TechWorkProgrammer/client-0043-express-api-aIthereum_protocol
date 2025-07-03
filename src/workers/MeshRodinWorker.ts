@@ -53,9 +53,15 @@ class MeshRodinWorker {
         const projectRoot = path.resolve(__dirname, "../../../");
         const localRoot = path.resolve(__dirname, "../../");
 
-        const scriptPath = path.join(projectRoot, "render_thumb.py");
+        const scriptPath = path.join(localRoot, "render_thumb.py");
         const absGlb = path.join(localRoot, localGlbPath);
         const absOut = path.join(localRoot, localOutPath);
+
+        console.log("projectRoot:", projectRoot);
+        console.log("localRoot  :", localRoot);
+        console.log("scriptPath :", scriptPath);
+        console.log("absGlb     :", absGlb);
+        console.log("absOut     :", absOut);
 
         if (!fs.existsSync(absGlb)) {
             throw new Error(`GLB file not found at ${absGlb}`);
