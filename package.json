@@ -6,9 +6,9 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "start": "ts-node -r tsconfig-paths/register src/main.ts",
+    "start": "xvfb-run -a -s \"-screen 0 512x512x24\" ts-node -r tsconfig-paths/register src/main.ts",
     "build": "tsc",
-    "start:prod": "node dist/main.js",
+    "start:prod": "xvfb-run -a -s \"-screen 0 512x512x24\" node dist/main.js",
     "migrate": "prisma migrate dev"
   },
   "dependencies": {
