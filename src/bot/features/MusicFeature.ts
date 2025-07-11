@@ -24,7 +24,7 @@ class MusicFeature extends Service {
     }
 
     public static async showMusicMenu(bot: TelegramBot, chatId: number): Promise<void> {
-        /*const message = `<b>Music Content Menu</b>\n\nChoose an action below:`;
+        const message = `<b>Music Content Menu</b>\n\nChoose an action below:`;
         const menuOptions: TelegramBot.SendMessageOptions = {
             parse_mode: "HTML",
             reply_markup: {
@@ -35,12 +35,7 @@ class MusicFeature extends Service {
                 ]
             }
         };
-        await bot.sendMessage(chatId, message, menuOptions);*/
-        await bot.sendMessage(
-            chatId,
-            `Music are not available, stay tuned`,
-            {parse_mode: "HTML"}
-        );
+        await bot.sendMessage(chatId, message, menuOptions);
     }
 
     public static async handleCallbackQuery(bot: TelegramBot, callbackQuery: TelegramBot.CallbackQuery): Promise<void> {
@@ -81,12 +76,7 @@ class MusicFeature extends Service {
     }
 
     private static async generateMusic(bot: TelegramBot, chatId: number, telegramId: string, prompt: string): Promise<void> {
-        await bot.sendMessage(
-            chatId,
-            `Music are not available, stay tuned`,
-            {parse_mode: "HTML"}
-        );
-        /*const telegramUser = await this.prisma.telegramUser.upsert({
+        const telegramUser = await this.prisma.telegramUser.upsert({
             where: {telegramId},
             update: {},
             create: {
@@ -114,7 +104,7 @@ class MusicFeature extends Service {
         } catch (error: any) {
             console.error("Error generating music:", error.message);
             await bot.sendMessage(chatId, "<b>Failed to generate music. Please try again later.</b>", {parse_mode: "HTML"});
-        }*/
+        }
     }
 
     public static async displayMusicAssets(bot: TelegramBot, chatId: number, telegramId: string, page: number): Promise<void> {
